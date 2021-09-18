@@ -1,0 +1,27 @@
+<idea-plugin>
+    <id>kotlin-to-json</id>
+    <name>kotlin-to-json</name>
+    <version>1.0.1</version>
+    <idea-version since-build="193"/>
+    <vendor email="kostya05983@mail.ru"></vendor>
+
+    <description><![CDATA[
+    Plugin allows to generate model to dto converts in kotlin
+    ]]></description>
+
+    <depends>org.jetbrains.kotlin</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="slack" secondary="true" icon="AllIcons.General.Modified" anchor="right"
+                    factoryClass="it.zoo.kotlin.to.json.idea.plugin"/>
+    </extensions>
+    <change-notes>
+        <![CDATA[
+      <html>
+      1.0 - realize the most used ways to convert entities
+      <br/>
+      </html>
+      ]]>
+    </change-notes>
+</idea-plugin>
