@@ -13,8 +13,8 @@
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="slack" secondary="true" icon="AllIcons.General.Modified" anchor="right"
-                    factoryClass="it.zoo.kotlin.to.json.idea.plugin"/>
+        <toolWindow id="kotlin to json" secondary="true" icon="AllIcons.General.Modified" anchor="right"
+                    factoryClass="it.zoo.kotlin.to.json.idea.plugin.toolwindow.KotlinToJsonToolWindowFactory"/>
     </extensions>
     <change-notes>
         <![CDATA[
