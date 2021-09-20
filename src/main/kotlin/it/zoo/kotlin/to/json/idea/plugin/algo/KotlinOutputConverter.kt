@@ -20,8 +20,18 @@ class KotlinOutputConverter {
         val matchResult = requireNotNull(CLASS_REGEX.matchEntire(input)) { "MatchResult must not be null" }
         val matchValue = requireNotNull(matchResult.groups[0]?.value) { "Match value must not be null" }
 
-        val jsonBuilder = StringBuilder()
-        jsonBuilder.append("{")
+        val jsonBuilder = JsonBuilder()
+        jsonBuilder.startObject()
+
+        var i = 0
+
+        while (i < matchValue.length) {
+            val char = matchValue.get(i)
+
+            if (char.isLetter()) {
+
+            }
+        }
 
         for (char in matchValue) {
             if (char.isLetter()) {

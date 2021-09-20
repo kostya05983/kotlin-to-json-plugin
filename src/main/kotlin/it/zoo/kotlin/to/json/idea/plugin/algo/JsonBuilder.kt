@@ -11,5 +11,11 @@ class JsonBuilder {
         sb.append("}")
     }
 
+    fun nextName(name: String) {
+        sb.append("\"$name\"")
+    }
 
+    fun delimiter() {
+        sb.append(":")
+    }
 }
