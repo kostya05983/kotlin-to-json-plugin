@@ -11,8 +11,28 @@ class JsonBuilder {
         sb.append("}")
     }
 
-    fun nextName(name: String) {
-        sb.append("\"$name\"")
+    fun startName() {
+        sb.append("\"")
+    }
+
+    fun endName() {
+        sb.append("\"")
+    }
+
+    fun startString() {
+        sb.append("\"")
+    }
+
+    fun endString() {
+        sb.append("\"")
+    }
+
+    fun valueDelimiter() {
+        sb.append(",")
+    }
+
+    fun addChar(char: Char) {
+        sb.append(char)
     }
 
     fun delimiter() {

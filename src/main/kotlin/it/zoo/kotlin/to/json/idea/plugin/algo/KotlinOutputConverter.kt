@@ -23,19 +23,68 @@ class KotlinOutputConverter {
         val jsonBuilder = JsonBuilder()
         jsonBuilder.startObject()
 
-        var i = 0
-
-        while (i < matchValue.length) {
-            val char = matchValue.get(i)
-
-            if (char.isLetter()) {
-
-            }
-        }
-
+        var currentState = START_READ_NAME
         for (char in matchValue) {
-            if (char.isLetter()) {
+            when {
+                char.isLetter() -> {
+                    when (currentState) {
+                        START_READ_NAME -> {
+                            jsonBuilder.startName()
+                            jsonBuilder.addChar(char)
+                            currentState = READ_NAME
+                        }
+                        READ_NAME -> {
+                            jsonBuilder.addChar(char)
+                        }
+                        START_READ_VALUE -> {
+                            jsonBuilder.startString()
+                            jsonBuilder.addChar(char)
+                            currentState = READ_STRING_VALUE
+                        }
+                        READ_STRING_VALUE -> {
+                            jsonBuilder.addChar(char)
+                        }
+                    }
+                    jsonBuilder.addChar(char)
+                }
+                char.isDigit() -> {
+                    when (currentState) {
+                        START_READ_VALUE -> {
+                            currentState = READ_INT_VALUE
+                        }
+                        READ_INT_VALUE -> {
+                            jsonBuilder.addChar(char)
+                        }
 
+                    }
+                }
+                char == '.' -> {
+
+                }
+                char == ' ' -> {
+
+                }
+                char == '=' -> {
+                    jsonBuilder.endName()
+                    jsonBuilder.delimiter()
+                    currentState = READ_STRING_VALUE
+                }
+                char == ',' -> {
+                    when (currentState) {
+                        READ_STRING_VALUE -> {
+                            jsonBuilder.endString()
+                            jsonBuilder.valueDelimiter()
+                            currentState = READ_NAME
+                        }
+                        READ_INT_VALUE -> {
+                            jsonBuilder.valueDelimiter()
+                            currentState = READ_NAME
+                        }
+                    }
+                }
+                char == ')' -> {
+
+                }
             }
         }
 
@@ -49,5 +98,10 @@ class KotlinOutputConverter {
         val INT_REGEX = Regex("\\d*")
         val DOUBLE_REGEX = Regex("\\d*.\\d*")
         val CLASS_REGEX = Regex("\\w*\\((\\w*)\\)")
+        private const val START_READ_NAME = 0
+        private const val START_READ_VALUE = 2
+        private const val READ_NAME = 1
+        private const val READ_STRING_VALUE = 3
+        private const val READ_INT_VALUE = 4
     }
 }
