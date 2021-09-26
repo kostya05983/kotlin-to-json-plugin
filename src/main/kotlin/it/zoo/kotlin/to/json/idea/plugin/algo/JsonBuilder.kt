@@ -2,41 +2,51 @@ package it.zoo.kotlin.to.json.idea.plugin.algo
 
 class JsonBuilder {
     private val sb = StringBuilder()
+    private val buffer = StringBuilder()
 
     fun startObject() {
-        sb.append("{")
+        buffer.append("{")
     }
 
     fun endObject() {
-        sb.append("}")
+        buffer.append("}")
     }
 
     fun startName() {
-        sb.append("\"")
+        buffer.append("\"")
     }
 
     fun endName() {
-        sb.append("\"")
+        buffer.append("\"")
     }
 
     fun startString() {
-        sb.append("\"")
+        buffer.append("\"")
     }
 
     fun endString() {
-        sb.append("\"")
+        buffer.append("\"")
     }
 
     fun valueDelimiter() {
-        sb.append(",")
+        buffer.append(",")
     }
 
     fun addChar(char: Char) {
-        sb.append(char)
+        buffer.append(char)
     }
 
     fun delimiter() {
-        sb.append(":")
+        buffer.append(":")
+    }
+
+    fun cleanBuffer() {
+        buffer.clear()
+    }
+
+    fun flush() {
+        sb.append(buffer.toString())
+        buffer.clear()
     }
 
     override fun toString(): String {

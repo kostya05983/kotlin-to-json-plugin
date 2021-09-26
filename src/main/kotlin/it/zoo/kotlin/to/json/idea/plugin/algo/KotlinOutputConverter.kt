@@ -51,6 +51,7 @@ class KotlinOutputConverter {
                 char.isDigit() -> {
                     when (currentState) {
                         START_READ_VALUE -> {
+                            jsonBuilder.addChar(char)
                             currentState = READ_INT_VALUE
                         }
                         READ_INT_VALUE -> {
@@ -67,6 +68,8 @@ class KotlinOutputConverter {
                 char == '=' -> {
                     jsonBuilder.endName()
                     jsonBuilder.delimiter()
+                    jsonBuilder.flush()
+
                     currentState = START_READ_VALUE
                 }
                 char == ',' -> {
@@ -74,16 +77,24 @@ class KotlinOutputConverter {
                         READ_STRING_VALUE -> {
                             jsonBuilder.endString()
                             jsonBuilder.valueDelimiter()
+                            jsonBuilder.flush()
                             currentState = START_READ_NAME
                         }
                         READ_INT_VALUE -> {
                             jsonBuilder.valueDelimiter()
+                            jsonBuilder.flush()
                             currentState = START_READ_NAME
                         }
                     }
                 }
                 char == ')' -> {
                     jsonBuilder.endObject()
+                    jsonBuilder.flush()
+                }
+                char == '(' -> {
+                    jsonBuilder.cleanBuffer()
+                    jsonBuilder.startObject()
+                    currentState = START_READ_NAME
                 }
             }
         }
