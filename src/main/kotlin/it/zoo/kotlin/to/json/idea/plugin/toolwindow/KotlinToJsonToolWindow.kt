@@ -13,7 +13,7 @@ class KotlinToJsonToolWindow {
     private lateinit var kotlinDataClassInput: JTextArea
     private lateinit var kotlinJsonOutput: JTextArea
     private lateinit var convertButton: JButton
-    private lateinit var text: JTextField
+    private lateinit var patternText: JTextField
 
     init {
         convertButton.addMouseListener(object: MouseListener {

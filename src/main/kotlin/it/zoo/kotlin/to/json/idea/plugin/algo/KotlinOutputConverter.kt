@@ -9,9 +9,7 @@ class KotlinOutputConverter {
     /**
      * Test(a=ttt, a1=20, a2=30.0, t3=2021-09-19T09:54:38.162Z, test=Test2(i=2021-09-19))
      */
-    fun convert(input: String): String {
-        var remainPart = input
-
+    fun convert(input: String, pattern: String): String {
         if (CLASS_REGEX.matches(input).not()) {
             logger.info { "Input doesn't match format" }
             return "Input doesn't match format, please specify another input"
@@ -46,10 +44,16 @@ class KotlinOutputConverter {
                         READ_STRING_VALUE -> {
                             jsonBuilder.addChar(char)
                         }
+                        READ_INT_VALUE -> { // TODO for dates with T
+                            jsonBuilder.addChar(char)
+                        }
                     }
                 }
                 char.isDigit() -> {
                     when (currentState) {
+                        READ_NAME -> {
+                            jsonBuilder.addChar(char)
+                        }
                         START_READ_VALUE -> {
                             jsonBuilder.addChar(char)
                             currentState = READ_INT_VALUE
@@ -57,7 +61,6 @@ class KotlinOutputConverter {
                         READ_INT_VALUE -> {
                             jsonBuilder.addChar(char)
                         }
-
                     }
                 }
                 char == '.' -> {
@@ -71,6 +74,12 @@ class KotlinOutputConverter {
                     jsonBuilder.flush()
 
                     currentState = START_READ_VALUE
+                }
+                char == ',' && jsonBuilder.isDate() -> {
+                    jsonBuilder.dateFormatBuffer(pattern)
+                    jsonBuilder.valueDelimiter()
+                    jsonBuilder.flush()
+                    currentState = START_READ_NAME
                 }
                 char == ',' -> {
                     when (currentState) {
@@ -96,6 +105,9 @@ class KotlinOutputConverter {
                     jsonBuilder.startObject()
                     currentState = START_READ_NAME
                 }
+                else -> {
+                    jsonBuilder.addChar(char)
+                }
             }
         }
 
@@ -104,8 +116,6 @@ class KotlinOutputConverter {
 
 
     private companion object {
-        val INT_REGEX = Regex("\\d*")
-        val DOUBLE_REGEX = Regex("\\d*.\\d*")
         val CLASS_REGEX = Regex("\\w*\\([A-z=.0-9-, :)(]*\\)")
         private const val START_READ_NAME = 0
         private const val START_READ_VALUE = 2

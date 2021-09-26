@@ -1,5 +1,12 @@
 package it.zoo.kotlin.to.json.idea.plugin.algo
 
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.*
+
 class JsonBuilder {
     private val sb = StringBuilder()
     private val buffer = StringBuilder()
@@ -40,6 +47,34 @@ class JsonBuilder {
         buffer.append(":")
     }
 
+    fun dateFormatBuffer(format: String) {
+        val formatter = DateTimeFormatter.ofPattern(format)
+            .withLocale( Locale.UK )
+            .withZone( ZoneId.systemDefault() );
+        val formatted = when {
+            LOCAL_DATE_REGEX.matches(buffer.toString()) -> {
+                val parsed = LocalDateTime.parse(buffer.toString())
+                formatter.format(parsed)
+            }
+            INSTANT_REGEX.matches(buffer.toString()) -> {
+                val parsed = Instant.parse(buffer.toString())
+                formatter.format(parsed)
+            }
+            else -> {
+                throw RuntimeException("Unsupported date")
+            }
+        }
+        buffer.clear()
+        buffer.append("\"$formatted\"")
+        return
+    }
+
+    fun isDate(): Boolean {
+        val localDateMatch = LOCAL_DATE_REGEX.containsMatchIn(buffer.toString())
+        val instantMatch = INSTANT_REGEX.containsMatchIn(buffer.toString())
+        return localDateMatch.or(instantMatch)
+    }
+
     fun cleanBuffer() {
         buffer.clear()
     }
@@ -51,5 +86,10 @@ class JsonBuilder {
 
     override fun toString(): String {
         return sb.toString()
+    }
+
+    private companion object {
+        val LOCAL_DATE_REGEX = Regex("\\d{4}-\\d{2}-\\d{2}")
+        val INSTANT_REGEX = Regex("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z")
     }
 }
