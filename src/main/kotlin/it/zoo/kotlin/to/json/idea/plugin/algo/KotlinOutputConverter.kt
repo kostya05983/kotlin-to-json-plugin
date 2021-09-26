@@ -20,11 +20,13 @@ class KotlinOutputConverter {
         val matchResult = requireNotNull(CLASS_REGEX.matchEntire(input)) { "MatchResult must not be null" }
         val matchValue = requireNotNull(matchResult.groups[0]?.value) { "Match value must not be null" }
 
+        val formattedValue = matchValue.substringAfter("(")
+
         val jsonBuilder = JsonBuilder()
         jsonBuilder.startObject()
 
         var currentState = START_READ_NAME
-        for (char in matchValue) {
+        for (char in formattedValue) {
             when {
                 char.isLetter() -> {
                     when (currentState) {
@@ -45,7 +47,6 @@ class KotlinOutputConverter {
                             jsonBuilder.addChar(char)
                         }
                     }
-                    jsonBuilder.addChar(char)
                 }
                 char.isDigit() -> {
                     when (currentState) {
@@ -59,45 +60,42 @@ class KotlinOutputConverter {
                     }
                 }
                 char == '.' -> {
-
+                    jsonBuilder.addChar(char)
                 }
                 char == ' ' -> {
-
                 }
                 char == '=' -> {
                     jsonBuilder.endName()
                     jsonBuilder.delimiter()
-                    currentState = READ_STRING_VALUE
+                    currentState = START_READ_VALUE
                 }
                 char == ',' -> {
                     when (currentState) {
                         READ_STRING_VALUE -> {
                             jsonBuilder.endString()
                             jsonBuilder.valueDelimiter()
-                            currentState = READ_NAME
+                            currentState = START_READ_NAME
                         }
                         READ_INT_VALUE -> {
                             jsonBuilder.valueDelimiter()
-                            currentState = READ_NAME
+                            currentState = START_READ_NAME
                         }
                     }
                 }
                 char == ')' -> {
-
+                    jsonBuilder.endObject()
                 }
             }
         }
 
-
-
-        return ""
+        return jsonBuilder.toString()
     }
 
 
     private companion object {
         val INT_REGEX = Regex("\\d*")
         val DOUBLE_REGEX = Regex("\\d*.\\d*")
-        val CLASS_REGEX = Regex("\\w*\\((\\w*)\\)")
+        val CLASS_REGEX = Regex("\\w*\\([A-z=.0-9-, :)(]*\\)")
         private const val START_READ_NAME = 0
         private const val START_READ_VALUE = 2
         private const val READ_NAME = 1

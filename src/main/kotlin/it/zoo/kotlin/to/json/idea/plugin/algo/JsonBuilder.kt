@@ -7,7 +7,7 @@ class JsonBuilder {
         sb.append("{")
     }
 
-    fun closeObject() {
+    fun endObject() {
         sb.append("}")
     }
 
@@ -37,5 +37,9 @@ class JsonBuilder {
 
     fun delimiter() {
         sb.append(":")
+    }
+
+    override fun toString(): String {
+        return sb.toString()
     }
 }
