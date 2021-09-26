@@ -60,6 +60,10 @@ class JsonBuilder {
                 val parsed = Instant.parse(buffer.toString())
                 formatter.format(parsed)
             }
+            LOCAL_DATE_TIME_REGEX.matches(buffer.toString()) -> {
+                val parsed = LocalDateTime.parse(buffer.toString())
+                formatter.format(parsed)
+            }
             else -> {
                 throw RuntimeException("Unsupported date")
             }
@@ -71,8 +75,10 @@ class JsonBuilder {
 
     fun isDate(): Boolean {
         val localDateMatch = LOCAL_DATE_REGEX.containsMatchIn(buffer.toString())
+        val localDateTimeMatch = LOCAL_DATE_TIME_REGEX.containsMatchIn(buffer.toString())
         val instantMatch = INSTANT_REGEX.containsMatchIn(buffer.toString())
-        return localDateMatch.or(instantMatch)
+
+        return localDateMatch.or(instantMatch).or(localDateTimeMatch)
     }
 
     fun cleanBuffer() {
@@ -90,6 +96,7 @@ class JsonBuilder {
 
     private companion object {
         val LOCAL_DATE_REGEX = Regex("\\d{4}-\\d{2}-\\d{2}")
+        val LOCAL_DATE_TIME_REGEX = Regex("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}")
         val INSTANT_REGEX = Regex("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z")
     }
 }

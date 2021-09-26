@@ -11,4 +11,10 @@ internal class KotlinOutputConverterTest {
         val output = kotlinOutputConverter.convert("Test(a=ttt, a1=20, a2=30.0, t3=2021-09-19T09:54:38.162Z, test=Test2(i=2021-09-19))", "yyyy-MM-dd")
         assertEquals("{\"a\":\"ttt\",\"a1\":20,\"a2\":30.0,\"t3\":\"2021-09-19\",\"test\":{\"i\":\"2021-09-19\"}}", output)
     }
+
+    @Test
+    fun `should success convert second example`() {
+        val output = kotlinOutputConverter.convert("Test(a=ttt, a1=20, a2=30.0, t3=2021-09-26T15:27:25.770Z, test=Test2(i=2021-09-26), test2=Test3(test=2021-09-26T15:27:25.784))", "yyyy-MM-dd")
+        assertEquals("{\"a\":\"ttt\",\"a1\":20,\"a2\":30.0,\"t3\":\"2021-09-26\",\"test\":{\"i\":\"2021-09-26\"},\"test2\":{\"test\":\"2021-09-26\"}}", output)
+    }
 }
