@@ -1,7 +1,7 @@
 package it.zoo.kotlin.to.json.idea.plugin.algo
 
-import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -53,7 +53,7 @@ class JsonBuilder {
             .withZone( ZoneId.systemDefault() );
         val formatted = when {
             LOCAL_DATE_REGEX.matches(buffer.toString()) -> {
-                val parsed = LocalDateTime.parse(buffer.toString())
+                val parsed = LocalDate.parse(buffer.toString())
                 formatter.format(parsed)
             }
             INSTANT_REGEX.matches(buffer.toString()) -> {

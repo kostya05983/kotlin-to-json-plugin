@@ -96,10 +96,16 @@ class KotlinOutputConverter {
                         }
                     }
                 }
+                char == ')' && jsonBuilder.isDate() -> {
+                    jsonBuilder.dateFormatBuffer(pattern)
+                    jsonBuilder.endObject()
+                    jsonBuilder.flush()
+                }
                 char == ')' -> {
                     jsonBuilder.endObject()
                     jsonBuilder.flush()
                 }
+
                 char == '(' -> {
                     jsonBuilder.cleanBuffer()
                     jsonBuilder.startObject()
