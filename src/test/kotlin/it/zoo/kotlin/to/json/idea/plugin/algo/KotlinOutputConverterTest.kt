@@ -17,4 +17,10 @@ internal class KotlinOutputConverterTest {
         val output = kotlinOutputConverter.convert("Test(a=ttt, a1=20, a2=30.0, t3=2021-09-26T15:27:25.770Z, test=Test2(i=2021-09-26), test2=Test3(test=2021-09-26T15:27:25.784))", "yyyy-MM-dd")
         assertEquals("{\"a\":\"ttt\",\"a1\":20,\"a2\":30.0,\"t3\":\"2021-09-26\",\"test\":{\"i\":\"2021-09-26\"},\"test2\":{\"test\":\"2021-09-26\"}}", output)
     }
+
+    @Test
+    fun `should convert array to json`() {
+        val output = kotlinOutputConverter.convert("[Test(a=ttt, a1=20, a2=30.0, t3=2021-09-28T14:28:19.037Z, test=[Test2(i=2021-09-28)], test2=Test3(test=2021-09-28T14:28:19.055)), Test(a=ttt, a1=20, a2=30.0, t3=2021-09-28T14:28:19.037Z, test=[Test2(i=2021-09-28)], test2=Test3(test=2021-09-28T14:28:19.055))]", "yyyy-MM-dd")
+        assertEquals("[{\"a\":\"ttt\",\"a1\":20,\"a2\":30.0,\"t3\":\"2021-09-28\",\"test\":[{\"i\":\"2021-09-28\"}],\"test2\":{\"test\":\"2021-09-28\"}},{\"a\":\"ttt\",\"a1\":20,\"a2\":30.0,\"t3\":\"2021-09-28\",\"test\":[{\"i\":\"2021-09-28\"}],\"test2\":{\"test\":\"2021-09-28\"}}]", output)
+    }
 }

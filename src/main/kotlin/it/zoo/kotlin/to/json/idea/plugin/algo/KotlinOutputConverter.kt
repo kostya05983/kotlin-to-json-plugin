@@ -6,25 +6,26 @@ import com.jetbrains.rd.util.info
 class KotlinOutputConverter {
     private val logger = CommonsLoggingLoggerFactory.getLogger("plugin")
 
-    /**
-     * Test(a=ttt, a1=20, a2=30.0, t3=2021-09-19T09:54:38.162Z, test=Test2(i=2021-09-19))
-     */
     fun convert(input: String, pattern: String): String {
-        if (CLASS_REGEX.matches(input).not()) {
+        if (CLASS_REGEX.matches(input).not() && ARRAY_REGEX.matches(input).not()) {
             logger.info { "Input doesn't match format" }
             return "Input doesn't match format, please specify another input"
         }
+        val matchValue = requireNotNull(getMatchResult(input)) { "Match value must not be null" }
 
-        val matchResult = requireNotNull(CLASS_REGEX.matchEntire(input)) { "MatchResult must not be null" }
-        val matchValue = requireNotNull(matchResult.groups[0]?.value) { "Match value must not be null" }
-
-        val formattedValue = matchValue.substringAfter("(")
+        val preProcessed = when {
+            CLASS_REGEX.matches(input) -> {
+                matchValue
+            }
+            ARRAY_REGEX.matches(input) -> {
+                preprocessArray(matchValue)
+            }
+            else -> matchValue
+        }
 
         val jsonBuilder = JsonBuilder()
-        jsonBuilder.startObject()
-
         var currentState = START_READ_NAME
-        for (char in formattedValue) {
+        for (char in preProcessed) {
             when {
                 char.isLetter() -> {
                     when (currentState) {
@@ -62,6 +63,14 @@ class KotlinOutputConverter {
                             jsonBuilder.addChar(char)
                         }
                     }
+                }
+                char == '[' -> {
+                    jsonBuilder.startArray()
+                    jsonBuilder.flush()
+                }
+                char ==']' -> {
+                    jsonBuilder.endArray()
+                    jsonBuilder.flush()
                 }
                 char == '.' -> {
                     jsonBuilder.addChar(char)
@@ -120,9 +129,60 @@ class KotlinOutputConverter {
         return jsonBuilder.toString()
     }
 
+    private fun preprocessArray(input: String): String {
+        val sb = StringBuilder()
+        var level = 0
+        var ignore = false
+        for(char in input) {
+            when{
+                char =='[' -> {
+                    sb.append(char)
+                    ignore = true
+                }
+                char == '(' -> {
+                    level++
+                    sb.append(char)
+                    ignore = false
+                }
+                char == ')' -> {
+                    level--
+                    sb.append(char)
+                    if (level ==0) {
+                        ignore = true
+                    }
+                }
+                char == ',' -> {
+                    sb.append(char)
+                }
+                char == ']' -> {
+                    sb.append(char)
+                }
+                else -> {
+                    if (ignore.not()) {
+                        sb.append(char)
+                    }
+                }
+            }
+        }
+        return sb.toString()
+    }
+
+    private fun getMatchResult(input: String): String? {
+        return when {
+            ARRAY_REGEX.matches(input) -> {
+                ARRAY_REGEX.matchEntire(input)?.groups?.get(0)?.value
+            }
+            CLASS_REGEX.matches(input) -> {
+                CLASS_REGEX.matchEntire(input)?.groups?.get(0)?.value
+            }
+            else -> null
+        }
+    }
+
 
     private companion object {
-        val CLASS_REGEX = Regex("\\w*\\([A-z=.0-9-, :)(]*\\)")
+        val ARRAY_REGEX = Regex("\\[\\w*\\([a-zA-Z0-9!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/? А-я]*\\)]")
+        val CLASS_REGEX = Regex("\\w*\\([a-zA-Z0-9!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/? А-я]*\\)")
         private const val START_READ_NAME = 0
         private const val START_READ_VALUE = 2
         private const val READ_NAME = 1

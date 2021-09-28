@@ -19,6 +19,14 @@ class JsonBuilder {
         buffer.append("}")
     }
 
+    fun startArray() {
+        buffer.append("[")
+    }
+
+    fun endArray() {
+        buffer.append("]")
+    }
+
     fun startName() {
         buffer.append("\"")
     }
