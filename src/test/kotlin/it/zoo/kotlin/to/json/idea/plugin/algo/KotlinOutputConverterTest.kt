@@ -1,7 +1,7 @@
 package it.zoo.kotlin.to.json.idea.plugin.algo
 
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 
 internal class KotlinOutputConverterTest {
     private val kotlinOutputConverter = KotlinOutputConverter()
