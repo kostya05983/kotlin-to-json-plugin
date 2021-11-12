@@ -57,8 +57,8 @@ class JsonBuilder {
 
     fun dateFormatBuffer(format: String) {
         val formatter = DateTimeFormatter.ofPattern(format)
-            .withLocale( Locale.UK )
-            .withZone( ZoneId.systemDefault() );
+            .withLocale(Locale.UK)
+            .withZone(ZoneId.systemDefault());
         val formatted = when {
             LOCAL_DATE_REGEX.matches(buffer.toString()) -> {
                 val parsed = LocalDate.parse(buffer.toString())
@@ -89,12 +89,21 @@ class JsonBuilder {
         return localDateMatch.or(instantMatch).or(localDateTimeMatch)
     }
 
+    fun isInt(): Boolean {
+        return buffer.toString().toIntOrNull() != null
+    }
+
     fun cleanBuffer() {
         buffer.clear()
     }
 
     fun flush() {
         sb.append(buffer.toString())
+        buffer.clear()
+    }
+
+    fun flushAsString() {
+        sb.append("\"$buffer\"")
         buffer.clear()
     }
 

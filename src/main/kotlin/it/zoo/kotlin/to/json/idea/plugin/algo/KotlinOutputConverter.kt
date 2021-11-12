@@ -99,8 +99,14 @@ class KotlinOutputConverter {
                             currentState = START_READ_NAME
                         }
                         READ_INT_VALUE -> {
-                            jsonBuilder.valueDelimiter()
-                            jsonBuilder.flush()
+                            if (jsonBuilder.isInt().not()) {
+                                jsonBuilder.flushAsString()
+                                jsonBuilder.valueDelimiter()
+                                jsonBuilder.flush()
+                            } else {
+                                jsonBuilder.valueDelimiter()
+                                jsonBuilder.flush()
+                            }
                             currentState = START_READ_NAME
                         }
                     }
@@ -111,6 +117,19 @@ class KotlinOutputConverter {
                     jsonBuilder.flush()
                 }
                 char == ')' -> {
+                    when(currentState) {
+                        READ_STRING_VALUE -> {
+                            jsonBuilder.endString()
+                        }
+                        READ_INT_VALUE -> {
+                            if (jsonBuilder.isInt().not()) {
+                                jsonBuilder.flushAsString()
+                            }
+                        }
+                        READ_NAME -> {
+                            throw RuntimeException("Wrong data format, value must be after json name")
+                        }
+                    }
                     jsonBuilder.endObject()
                     jsonBuilder.flush()
                 }

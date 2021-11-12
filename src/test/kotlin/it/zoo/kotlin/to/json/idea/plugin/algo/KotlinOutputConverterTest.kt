@@ -23,4 +23,10 @@ internal class KotlinOutputConverterTest {
         val output = kotlinOutputConverter.convert("[Test(a=ttt, a1=20, a2=30.0, t3=2021-09-28T14:28:19.037Z, test=[Test2(i=2021-09-28)], test2=Test3(test=2021-09-28T14:28:19.055)), Test(a=ttt, a1=20, a2=30.0, t3=2021-09-28T14:28:19.037Z, test=[Test2(i=2021-09-28)], test2=Test3(test=2021-09-28T14:28:19.055))]", "yyyy-MM-dd")
         assertEquals("[{\"a\":\"ttt\",\"a1\":20,\"a2\":30.0,\"t3\":\"2021-09-28\",\"test\":[{\"i\":\"2021-09-28\"}],\"test2\":{\"test\":\"2021-09-28\"}},{\"a\":\"ttt\",\"a1\":20,\"a2\":30.0,\"t3\":\"2021-09-28\",\"test\":[{\"i\":\"2021-09-28\"}],\"test2\":{\"test\":\"2021-09-28\"}}]", output)
     }
+
+    @Test
+    fun `should success convert class with uuid`() {
+        val output = kotlinOutputConverter.convert("Test(a=6de25b31-afec-4672-b25f-015cc091591d)", "yyyy-MM-dd")
+        assertEquals("{\"a\":\"6de25b31-afec-4672-b25f-015cc091591d\"}", output)
+    }
 }
