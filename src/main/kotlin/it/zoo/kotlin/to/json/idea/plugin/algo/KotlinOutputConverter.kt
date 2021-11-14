@@ -25,12 +25,12 @@ class KotlinOutputConverter {
 
         val jsonBuilder = JsonBuilder()
         var currentState = START_READ_NAME
+        var lastSymbol = '='
         for (char in preProcessed) {
             when {
                 char.isLetter() || char.isDigit() -> {
                     when (currentState) {
                         START_READ_NAME -> {
-                            jsonBuilder.startName()
                             jsonBuilder.addChar(char)
                             currentState = READ_NAME
                         }
@@ -51,7 +51,13 @@ class KotlinOutputConverter {
                     jsonBuilder.flush()
                 }
                 char ==']' -> {
+                    if (jsonBuilder.isNumber().not() && jsonBuilder.isNull().not()) {
+                        jsonBuilder.flushAsString()
+                    } else {
+                        jsonBuilder.flush()
+                    }
                     jsonBuilder.endArray()
+
                     jsonBuilder.flush()
                 }
                 char == '.' -> {
@@ -60,7 +66,7 @@ class KotlinOutputConverter {
                 char == ' ' -> {
                 }
                 char == '=' -> {
-                    jsonBuilder.endName()
+                    jsonBuilder.flushAsString()
                     jsonBuilder.delimiter()
                     jsonBuilder.flush()
 
@@ -74,7 +80,7 @@ class KotlinOutputConverter {
                 }
                 char == ',' -> {
                     when (currentState) {
-                        READ_VALUE -> {
+                        READ_NAME, READ_VALUE -> {
                             if (jsonBuilder.isNumber().not() && jsonBuilder.isNull().not()) {
                                 jsonBuilder.flushAsString()
                                 jsonBuilder.valueDelimiter()
@@ -94,7 +100,11 @@ class KotlinOutputConverter {
                 }
                 char == ')' -> {
                     when(currentState) {
-                        READ_VALUE -> {
+                        START_READ_VALUE, READ_VALUE -> {
+                            if (lastSymbol == '=') {
+                                jsonBuilder.addNull()
+                            }
+
                             if (jsonBuilder.isNumber().not() && jsonBuilder.isNull().not()) {
                                 jsonBuilder.flushAsString()
                             } else {
@@ -112,12 +122,14 @@ class KotlinOutputConverter {
                 char == '(' -> {
                     jsonBuilder.cleanBuffer()
                     jsonBuilder.startObject()
+                    jsonBuilder.flush()
                     currentState = START_READ_NAME
                 }
                 else -> {
                     jsonBuilder.addChar(char)
                 }
             }
+            lastSymbol = char
         }
 
         return jsonBuilder.toString()
@@ -130,6 +142,7 @@ class KotlinOutputConverter {
     }
 
     private fun preprocessArray(input: String): String {
+        return input
         val sb = StringBuilder()
         var level = 0
         var ignore = false
@@ -181,7 +194,7 @@ class KotlinOutputConverter {
 
 
     private companion object {
-        val ARRAY_REGEX = Regex("\\[\\w*\\([a-zA-Z0-9!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/? А-я]*\\)]")
+        val ARRAY_REGEX = Regex("\\[\\w*[A-z0-9_, .a-zA-Z0-9!@#\$%^&*()+\\-=\\[\\]{};':\"\\\\|<>?А-я]*\\]")
         val CLASS_REGEX = Regex("\\w*\\([a-zA-Z0-9!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/? А-я]*\\)")
 
         val REPLACE_NULL_WITH_COMMA_REGEX = Regex(",\\s*\\w*=null")

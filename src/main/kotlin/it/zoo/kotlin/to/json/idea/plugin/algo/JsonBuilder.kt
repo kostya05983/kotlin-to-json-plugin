@@ -51,6 +51,10 @@ class JsonBuilder {
         buffer.append(char)
     }
 
+    fun addNull() {
+        buffer.append("null")
+    }
+
     fun delimiter() {
         buffer.append(":")
     }
@@ -87,6 +91,10 @@ class JsonBuilder {
         val instantMatch = INSTANT_REGEX.containsMatchIn(buffer.toString())
 
         return localDateMatch.or(instantMatch).or(localDateTimeMatch)
+    }
+
+    fun isEmpty(): Boolean {
+        return buffer.toString().isEmpty()
     }
 
     fun isNull(): Boolean {

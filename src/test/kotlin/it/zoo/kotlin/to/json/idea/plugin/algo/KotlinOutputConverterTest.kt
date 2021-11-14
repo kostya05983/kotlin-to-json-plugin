@@ -35,4 +35,16 @@ internal class KotlinOutputConverterTest {
         val output = kotlinOutputConverter.convert("Test(a=CODE_24354235)", "yyyy-MM-dd")
         assertEquals("{\"a\":\"CODE_24354235\"}", output)
     }
+
+    @Test
+    fun `should convert array of enums`() {
+        val output = kotlinOutputConverter.convert("[CODE_222, CODE_23232]", "yyyy-MM-dd")
+        assertEquals("[\"CODE_222\",\"CODE_23232\"]", output)
+    }
+
+    @Test
+    fun `should convert empty string`() {
+        val output = kotlinOutputConverter.convert("Test(t=)", "yyyy-MM-dd")
+        assertEquals("{\"t\":null}", output)
+    }
 }
