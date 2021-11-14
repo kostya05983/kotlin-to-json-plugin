@@ -89,6 +89,10 @@ class JsonBuilder {
         return localDateMatch.or(instantMatch).or(localDateTimeMatch)
     }
 
+    fun isNull(): Boolean {
+        return buffer.toString() == "null"
+    }
+
     fun isInt(): Boolean {
         return buffer.toString().toIntOrNull() != null
     }
@@ -103,6 +107,7 @@ class JsonBuilder {
     }
 
     fun flushAsString() {
+        if (buffer.toString().isEmpty()) return
         sb.append("\"$buffer\"")
         buffer.clear()
     }

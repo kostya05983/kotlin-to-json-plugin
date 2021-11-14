@@ -21,7 +21,7 @@ class KotlinOutputConverter {
                 preprocessArray(matchValue)
             }
             else -> matchValue
-        }
+        }.let { applyRegexes(it) }
 
         val jsonBuilder = JsonBuilder()
         var currentState = START_READ_NAME
@@ -99,7 +99,7 @@ class KotlinOutputConverter {
                             currentState = START_READ_NAME
                         }
                         READ_INT_VALUE -> {
-                            if (jsonBuilder.isInt().not()) {
+                            if (jsonBuilder.isInt().not() && jsonBuilder.isNull().not()) {
                                 jsonBuilder.flushAsString()
                                 jsonBuilder.valueDelimiter()
                                 jsonBuilder.flush()
@@ -120,9 +120,9 @@ class KotlinOutputConverter {
                     when(currentState) {
                         READ_STRING_VALUE -> {
                             jsonBuilder.endString()
-                        }
+                        }-
                         READ_INT_VALUE -> {
-                            if (jsonBuilder.isInt().not()) {
+                            if (jsonBuilder.isInt().not() && jsonBuilder.isNull().not()) {
                                 jsonBuilder.flushAsString()
                             }
                         }
@@ -146,6 +146,12 @@ class KotlinOutputConverter {
         }
 
         return jsonBuilder.toString()
+    }
+
+    private fun applyRegexes(input: String): String {
+        return input.let { REPLACE_NULL_WITH_COMMA_REGEX.replace(it, "") }.let {
+            REPLACE_NULL_REGEX.replace(it, "")
+        }
     }
 
     private fun preprocessArray(input: String): String {
@@ -202,6 +208,10 @@ class KotlinOutputConverter {
     private companion object {
         val ARRAY_REGEX = Regex("\\[\\w*\\([a-zA-Z0-9!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/? А-я]*\\)]")
         val CLASS_REGEX = Regex("\\w*\\([a-zA-Z0-9!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/? А-я]*\\)")
+
+        val REPLACE_NULL_WITH_COMMA_REGEX = Regex(",\\s*\\w*=null")
+        val REPLACE_NULL_REGEX = Regex("\\s*\\w*=null")
+
         private const val START_READ_NAME = 0
         private const val START_READ_VALUE = 2
         private const val READ_NAME = 1

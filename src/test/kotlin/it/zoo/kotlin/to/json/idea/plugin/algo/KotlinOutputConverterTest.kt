@@ -29,4 +29,10 @@ internal class KotlinOutputConverterTest {
         val output = kotlinOutputConverter.convert("Test(a=6de25b31-afec-4672-b25f-015cc091591d)", "yyyy-MM-dd")
         assertEquals("{\"a\":\"6de25b31-afec-4672-b25f-015cc091591d\"}", output)
     }
+
+    @Test
+    fun `should convert enum`() {
+        val output = kotlinOutputConverter.convert("Test(a=CODE_24354235)", "yyyy-MM-dd")
+        assertEquals("{a=CODE_24354235}", output)
+    }
 }
