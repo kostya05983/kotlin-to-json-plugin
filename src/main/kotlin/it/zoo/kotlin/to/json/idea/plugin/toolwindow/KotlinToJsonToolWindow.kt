@@ -18,24 +18,18 @@ class KotlinToJsonToolWindow {
     init {
         convertButton.addMouseListener(object: MouseListener {
             override fun mouseClicked(e: MouseEvent?) {
-                TODO("Not yet implemented")
             }
 
             override fun mousePressed(e: MouseEvent?) {
-
-                TODO("Not yet implemented")
             }
 
             override fun mouseReleased(e: MouseEvent?) {
-                TODO("Not yet implemented")
             }
 
             override fun mouseEntered(e: MouseEvent?) {
-                TODO("Not yet implemented")
             }
 
             override fun mouseExited(e: MouseEvent?) {
-                TODO("Not yet implemented")
             }
 
         })
