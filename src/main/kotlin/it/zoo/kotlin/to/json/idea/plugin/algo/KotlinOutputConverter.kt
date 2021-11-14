@@ -72,7 +72,11 @@ class KotlinOutputConverter {
                 }
                 char == ',' -> {
                     when (currentState) {
-                        READ_NAME, READ_VALUE -> {
+                        START_READ_VALUE, READ_NAME, READ_VALUE -> {
+                            if(lastSymbol == '=') {
+                                jsonBuilder.addNull()
+                            }
+
                             if (jsonBuilder.isNumber().not() && jsonBuilder.isNull().not()) {
                                 jsonBuilder.flushAsString()
                                 jsonBuilder.valueDelimiter()

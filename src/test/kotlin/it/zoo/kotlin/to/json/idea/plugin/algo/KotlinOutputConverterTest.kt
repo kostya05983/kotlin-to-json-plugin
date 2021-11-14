@@ -47,4 +47,10 @@ internal class KotlinOutputConverterTest {
         val output = kotlinOutputConverter.convert("Test(t=)", "yyyy-MM-dd")
         assertEquals("{\"t\":null}", output)
     }
+
+    @Test
+    fun `should convert array of empty string`() {
+        val output = kotlinOutputConverter.convert("Test(t=,t2=)", "yyyy-MM-dd")
+        assertEquals("{\"t\":null,\"t2\":null}", output)
+    }
 }
