@@ -13,15 +13,7 @@ class KotlinOutputConverter {
         }
         val matchValue = requireNotNull(getMatchResult(input)) { "Match value must not be null" }
 
-        val preProcessed = when {
-            CLASS_REGEX.matches(input) -> {
-                matchValue
-            }
-            ARRAY_REGEX.matches(input) -> {
-                preprocessArray(matchValue)
-            }
-            else -> matchValue
-        }.let { applyRegexes(it) }
+        val preProcessed = applyRegexes(matchValue)
 
         val jsonBuilder = JsonBuilder()
         var currentState = START_READ_NAME
@@ -139,45 +131,6 @@ class KotlinOutputConverter {
         return input.let { REPLACE_NULL_WITH_COMMA_REGEX.replace(it, "") }.let {
             REPLACE_NULL_REGEX.replace(it, "")
         }
-    }
-
-    private fun preprocessArray(input: String): String {
-        return input
-        val sb = StringBuilder()
-        var level = 0
-        var ignore = false
-        for(char in input) {
-            when (char) {
-                '[' -> {
-                    sb.append(char)
-                    ignore = true
-                }
-                '(' -> {
-                    level++
-                    sb.append(char)
-                    ignore = false
-                }
-                ')' -> {
-                    level--
-                    sb.append(char)
-                    if (level ==0) {
-                        ignore = true
-                    }
-                }
-                ',' -> {
-                    sb.append(char)
-                }
-                ']' -> {
-                    sb.append(char)
-                }
-                else -> {
-                    if (ignore.not()) {
-                        sb.append(char)
-                    }
-                }
-            }
-        }
-        return sb.toString()
     }
 
     private fun getMatchResult(input: String): String? {
