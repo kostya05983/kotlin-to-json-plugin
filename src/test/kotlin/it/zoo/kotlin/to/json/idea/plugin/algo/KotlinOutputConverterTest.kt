@@ -33,6 +33,6 @@ internal class KotlinOutputConverterTest {
     @Test
     fun `should convert enum`() {
         val output = kotlinOutputConverter.convert("Test(a=CODE_24354235)", "yyyy-MM-dd")
-        assertEquals("{a=CODE_24354235}", output)
+        assertEquals("{\"a\":\"CODE_24354235\"}", output)
     }
 }

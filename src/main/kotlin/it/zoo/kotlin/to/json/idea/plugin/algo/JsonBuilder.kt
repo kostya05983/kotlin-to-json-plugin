@@ -93,8 +93,8 @@ class JsonBuilder {
         return buffer.toString() == "null"
     }
 
-    fun isInt(): Boolean {
-        return buffer.toString().toIntOrNull() != null
+    fun isNumber(): Boolean {
+        return buffer.toString().toDoubleOrNull() != null || buffer.toString().toIntOrNull() != null
     }
 
     fun cleanBuffer() {

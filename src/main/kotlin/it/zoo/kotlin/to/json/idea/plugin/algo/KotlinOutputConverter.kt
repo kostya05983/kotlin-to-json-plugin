@@ -27,7 +27,7 @@ class KotlinOutputConverter {
         var currentState = START_READ_NAME
         for (char in preProcessed) {
             when {
-                char.isLetter() -> {
+                char.isLetter() || char.isDigit() -> {
                     when (currentState) {
                         START_READ_NAME -> {
                             jsonBuilder.startName()
@@ -38,28 +38,10 @@ class KotlinOutputConverter {
                             jsonBuilder.addChar(char)
                         }
                         START_READ_VALUE -> {
-                            jsonBuilder.startString()
                             jsonBuilder.addChar(char)
-                            currentState = READ_STRING_VALUE
+                            currentState = READ_VALUE
                         }
-                        READ_STRING_VALUE -> {
-                            jsonBuilder.addChar(char)
-                        }
-                        READ_INT_VALUE -> { // TODO for dates with T
-                            jsonBuilder.addChar(char)
-                        }
-                    }
-                }
-                char.isDigit() -> {
-                    when (currentState) {
-                        READ_NAME -> {
-                            jsonBuilder.addChar(char)
-                        }
-                        START_READ_VALUE -> {
-                            jsonBuilder.addChar(char)
-                            currentState = READ_INT_VALUE
-                        }
-                        READ_INT_VALUE -> {
+                        READ_VALUE -> {
                             jsonBuilder.addChar(char)
                         }
                     }
@@ -92,14 +74,8 @@ class KotlinOutputConverter {
                 }
                 char == ',' -> {
                     when (currentState) {
-                        READ_STRING_VALUE -> {
-                            jsonBuilder.endString()
-                            jsonBuilder.valueDelimiter()
-                            jsonBuilder.flush()
-                            currentState = START_READ_NAME
-                        }
-                        READ_INT_VALUE -> {
-                            if (jsonBuilder.isInt().not() && jsonBuilder.isNull().not()) {
+                        READ_VALUE -> {
+                            if (jsonBuilder.isNumber().not() && jsonBuilder.isNull().not()) {
                                 jsonBuilder.flushAsString()
                                 jsonBuilder.valueDelimiter()
                                 jsonBuilder.flush()
@@ -118,12 +94,11 @@ class KotlinOutputConverter {
                 }
                 char == ')' -> {
                     when(currentState) {
-                        READ_STRING_VALUE -> {
-                            jsonBuilder.endString()
-                        }-
-                        READ_INT_VALUE -> {
-                            if (jsonBuilder.isInt().not() && jsonBuilder.isNull().not()) {
+                        READ_VALUE -> {
+                            if (jsonBuilder.isNumber().not() && jsonBuilder.isNull().not()) {
                                 jsonBuilder.flushAsString()
+                            } else {
+                                jsonBuilder.flush()
                             }
                         }
                         READ_NAME -> {
@@ -159,27 +134,27 @@ class KotlinOutputConverter {
         var level = 0
         var ignore = false
         for(char in input) {
-            when{
-                char =='[' -> {
+            when (char) {
+                '[' -> {
                     sb.append(char)
                     ignore = true
                 }
-                char == '(' -> {
+                '(' -> {
                     level++
                     sb.append(char)
                     ignore = false
                 }
-                char == ')' -> {
+                ')' -> {
                     level--
                     sb.append(char)
                     if (level ==0) {
                         ignore = true
                     }
                 }
-                char == ',' -> {
+                ',' -> {
                     sb.append(char)
                 }
-                char == ']' -> {
+                ']' -> {
                     sb.append(char)
                 }
                 else -> {
@@ -215,7 +190,6 @@ class KotlinOutputConverter {
         private const val START_READ_NAME = 0
         private const val START_READ_VALUE = 2
         private const val READ_NAME = 1
-        private const val READ_STRING_VALUE = 3
-        private const val READ_INT_VALUE = 4
+        private const val READ_VALUE = 3
     }
 }
